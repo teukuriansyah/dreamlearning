@@ -1,8 +1,19 @@
 import { Text, View, ScrollView } from "react-native";
 import { useState, useEffect } from "react"
+import localStorage from "../../modules/localStorage/src/LocalstorageModule"
 import List from "../components/List"
 
 export default function Index() {
+  const [datas, setDatas] = useState()
+
+  const fetchingData = () => {
+    const data = localStorage.getData()
+    setDatas(data == "No Data" ? [] : JSON.parse(data))
+  }
+
+  useEffect(() => {
+    fetchingData()
+  },[])
   return (
     <ScrollView className="bg-[#081425]">
       <View className="px-5 py-2">

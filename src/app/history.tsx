@@ -5,6 +5,7 @@ import Card from "../components/Card";
 
 const History = () => {
   const [date, setDate] = useState(new Date());
+  const [datas,setDatas] = useState()
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
@@ -14,6 +15,14 @@ const History = () => {
 
   const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
+  const fetchingData = () => {
+    const data = localStorage.getData()
+    setDatas(data == "No Data" ? [] : JSON.parse(data))
+  }
+
+  useEffect(() => {
+    fetchingData()
+  },[])
   return (
     <ScrollView className="bg-[#081425]">
       {/* Title */}

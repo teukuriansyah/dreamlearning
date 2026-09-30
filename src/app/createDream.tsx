@@ -1,9 +1,13 @@
 import { View, Text, TextInput, ScrollView, Pressable, Platform } from 'react-native';
 import { useState, useEffect } from "react";
+import localStorage from "../../modules/localStorage/src/LocalstorageModule"
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CreateDream = () => {
   const emotions = ["Happy", "Excited", "Calm", "Confused", "Curious", "Scared"];
+  const [title, onChangeTitle] = useState<string>("")
+  const [context, onChangeContext] = useState<string>("")
+  const [datas, setDatas] = useState("")
   const [selectedLucidity, setSelectedLucidity] = useState("partially");
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
   const [date, setDate] = useState(new Date());
@@ -17,13 +21,30 @@ const CreateDream = () => {
     }
   };
 
+  const postData = () => {
+    const payload = {title,context,date:formattedDate,lucidity:selectedLucidity,emotions:selectedEmotions}
+    localStorage.postData(JSON.stringify([...datas,payload]))
+    onChangeTitle("")
+    onChangeContext("")
+    setSelectedEmotions([])
+    setSelectedLucidity("partially")
+  }
+
   const onChangeDate = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) setDate(selectedDate);
   };
 
+  const fetchingData = () => {
+    const data = localStorage.getData()
+    setDatas(data == "No Data" ? [] : JSON.parse(data))
+  }
+
   const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
+  useEffect(() => {
+    fetchingData()
+  },[])
   return (
     <ScrollView className="bg-[#081425]">
       {/* Basic Details */}
@@ -32,7 +53,7 @@ const CreateDream = () => {
           <Text className="text-2xl font-bold text-white">Basic Details</Text>
           <View className="mt-2">
             <Text className="text-sm text-gray-400">Dream Title</Text>
-            <TextInput className="mt-1 rounded-xl text-white px-4 py-2 bg-[#081425]" />
+            <TextInput className="mt-1 rounded-xl text-white px-4 py-2 bg-[#081425]" value={title} onChangeText={onChangeTitle} placeholder="Title" placeholderTextColor="#4B5563"/>
           </View>
           <View className="mt-3 bg-[#081425] rounded-xl px-4 py-3 ">
             <Text className="text-sm text-gray-400">Date</Text>
@@ -49,7 +70,7 @@ const CreateDream = () => {
         <View className="bg-[#111C2D] rounded-xl px-5 py-3">
           <Text className="text-2xl font-bold text-white">Story & Chronology</Text>
           <View className="mt-2">
-            <TextInput className="rounded-xl px-4 py-2 text-white h-36 bg-[#081425]" multiline textAlignVertical="top" />
+            <TextInput className="rounded-xl px-4 py-2 text-white h-44 bg-[#081425]" multiline textAlignVertical="top" value={context} onChangeText={onChangeContext} placeholder="Story & Chronology" placeholderTextColor="#4B5563"/>
           </View>
         </View>
       </View>
@@ -90,7 +111,7 @@ const CreateDream = () => {
 
       {/* Save Button */}
       <View className="px-5 py-4">
-        <Pressable className="items-center px-5 py-3.5 rounded-xl bg-[#38bdf8] active:opacity-80">
+        <Pressable onPress={() => postData()}className="items-center px-5 py-3.5 rounded-xl bg-[#38bdf8] active:opacity-80">
           <Text className="font-semibold text-[#081425] text-base">Save Dream to Journal</Text>
         </Pressable>
       </View>
