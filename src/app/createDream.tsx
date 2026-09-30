@@ -1,31 +1,45 @@
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
-import { useState } from "react"
+import { View, Text, TextInput, ScrollView, Pressable, Platform } from 'react-native';
+import { useState, useEffect } from "react";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-const createDream = () => {
-  const [selectedLucidity, setSelectedLucidity] = useState("partially")
-  const emotions = ["Happy", "Excited", "Calm", "Confused", "Curious", "Scared"]
-  const [selectedEmotions, setSelectedEmotions] = useState([])
+const CreateDream = () => {
+  const emotions = ["Happy", "Excited", "Calm", "Confused", "Curious", "Scared"];
+  const [selectedLucidity, setSelectedLucidity] = useState("partially");
+  const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const pickEmotions = (e:string) => {
-    const searchEmotions = selectedEmotions.indexOf(e,0)
-    if(searchEmotions < 0) {
-      setSelectedEmotions([...selectedEmotions,e])
+  const pickEmotions = (e: string) => {
+    if (selectedEmotions.includes(e)) {
+      setSelectedEmotions(selectedEmotions.filter((d) => d !== e));
+    } else {
+      setSelectedEmotions([...selectedEmotions, e]);
     }
-    else {
-      setSelectedEmotions(selectedEmotions.filter(d => e != d))
-    }
-  }
+  };
+
+  const onChangeDate = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) setDate(selectedDate);
+  };
+
+  const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
   return (
     <ScrollView className="bg-[#081425]">
       {/* Basic Details */}
       <View className="px-5 py-2">
         <View className="rounded-xl px-5 py-3 bg-[#111C2D]">
-          <View>
-            <Text className="text-2xl font-bold text-white">Basic Details</Text>
-          </View>
+          <Text className="text-2xl font-bold text-white">Basic Details</Text>
           <View className="mt-2">
-            <Text className="text-sm text-gray-600">Dream Title</Text>
-            <TextInput className="mt-1 rounded-xl text-white px-4 bg-[#081425]"/>
+            <Text className="text-sm text-gray-400">Dream Title</Text>
+            <TextInput className="mt-1 rounded-xl text-white px-4 py-2 bg-[#081425]" />
+          </View>
+          <View className="mt-3 bg-[#081425] rounded-xl px-4 py-3 ">
+            <Text className="text-sm text-gray-400">Date</Text>
+            <Pressable onPress={() => setShowDatePicker(true)} className="mt-1 py-2 rounded-xl flex-row justify-between items-center active:opacity-80">
+              <Text className="text-white font-medium text-lg">{formattedDate}</Text>
+            </Pressable>
+            {showDatePicker && <DateTimePicker value={date} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={onChangeDate} maximumDate={new Date()} />}
           </View>
         </View>
       </View>
@@ -33,11 +47,9 @@ const createDream = () => {
       {/* Story & Chronology */}
       <View className="px-5 py-2">
         <View className="bg-[#111C2D] rounded-xl px-5 py-3">
-          <View>
-            <Text className="text-2xl font-bold text-white">Story & Chronology</Text>
-          </View>
+          <Text className="text-2xl font-bold text-white">Story & Chronology</Text>
           <View className="mt-2">
-            <TextInput className="rounded-xl px-4 h-36 bg-[#081425]" multiline textAlignVertical="top"/>
+            <TextInput className="rounded-xl px-4 py-2 text-white h-36 bg-[#081425]" multiline textAlignVertical="top" />
           </View>
         </View>
       </View>
@@ -45,15 +57,15 @@ const createDream = () => {
       {/* Lucidity & Awareness */}
       <View className="px-5 py-2">
         <View className="bg-[#111C2D] rounded-xl px-5 py-3">
-          <View>
-            <Text className="text-2xl font-bold text-white">Lucidity & Awareness</Text>
-          </View>
+          <Text className="text-2xl font-bold text-white">Lucidity & Awareness</Text>
           <View className="mt-2">
-            <Text className="text-sm text-gray-600">Were you aware that you were dreaming?</Text>
-            <View className="bg-[#081425] flex-row justify-between items-center rounded-xl px-5 py-2 mt-2">
-              <Pressable onPress={() => setSelectedLucidity("no")} className={`${selectedLucidity == "no" ? "bg-[#111C2D] px-4 py-2 rounded-xl" : "px-4 py-2"}`}><Text className={`${selectedLucidity == "no" ? "text-white" : "text-gray-600"} `}>No</Text></Pressable>
-              <Pressable onPress={() => setSelectedLucidity("partially")} className={`${selectedLucidity == "partially" ? "bg-[#111C2D] px-4 py-2 rounded-xl" : "py-2 px-4"}`}><Text className={`${selectedLucidity == "partially" ? "text-white" : "text-gray-600"} `}>Partially</Text></Pressable>
-              <Pressable onPress={() => setSelectedLucidity("yes")} className={`${selectedLucidity == "yes" ? "bg-[#111C2D] px-4 py-2 rounded-xl" : "px-4 py-2"}`}><Text className={`${selectedLucidity == "yes" ? "text-white" : "text-gray-600"} `}>Yes</Text></Pressable>
+            <Text className="text-sm text-gray-400">Were you aware that you were dreaming?</Text>
+            <View className="bg-[#081425] flex-row justify-between items-center rounded-xl p-1 mt-2">
+              {["no", "partially", "yes"].map((option) => (
+                <Pressable key={option} onPress={() => setSelectedLucidity(option)} className={`px-4 py-2 rounded-xl flex-1 items-center ${selectedLucidity === option ? "bg-[#111C2D]" : ""}`}>
+                  <Text className={`capitalize ${selectedLucidity === option ? "text-white font-semibold" : "text-gray-400"}`}>{option}</Text>
+                </Pressable>
+              ))}
             </View>
           </View>
         </View>
@@ -62,33 +74,28 @@ const createDream = () => {
       {/* Characteristics */}
       <View className="px-5 py-2">
         <View className="bg-[#111C2D] rounded-xl px-5 py-3">
-          <View>
-            <Text className="text-2xl font-bold text-white">Characteristics</Text>
-          </View>
+          <Text className="text-2xl font-bold text-white">Characteristics</Text>
           <View className="mt-2">
-            <Text className="text-sm text-gray-600">Dominant Emotions Felt</Text>
-            <View>
-              <View className="flex-row gap-4 mt-4">
-                {emotions.map((d,i) => (i <= 2 ? <Pressable key={i} onPress={() => pickEmotions(d)} className={`rounded-xl ${selectedEmotions.indexOf(d,0) < 0 ? "bg-[#2A3548]" : "bg-[#081425]"} px-5 py-3`}><Text className={`${selectedEmotions.indexOf(d,0) < 0 ? "text-[#38bdf8]" : "text-gray-600"}`}>{d}</Text></Pressable> : null))}
-              </View>
-              <View className="flex-row gap-4 mt-4">
-                {emotions.map((d,i) => (i > 2 ? <Pressable key={i} onPress={() => pickEmotions(d)} className={`rounded-xl ${selectedEmotions.indexOf(d,0) < 0 ? "bg-[#2A3548]" : "bg-[#081425]"} px-5 py-3`}><Text className={`${selectedEmotions.indexOf(d,0) < 0 ? "text-[#38bdf8]" : "text-gray-600"}`}>{d}</Text></Pressable> : null))}
-              </View>
+            <Text className="text-sm text-gray-400 mb-3">Dominant Emotions Felt</Text>
+            <View className="flex-row flex-wrap gap-2">
+              {emotions.map((emotion) => (
+                <Pressable key={emotion} onPress={() => pickEmotions(emotion)} className={`rounded-xl px-4 py-2.5 border ${selectedEmotions.includes(emotion) ? "bg-[#2A3548] border-[#38bdf8]" : "bg-[#081425] border-transparent"}`}>
+                  <Text className={selectedEmotions.includes(emotion) ? "text-[#38bdf8] font-medium" : "text-gray-400"}>{emotion}</Text>
+                </Pressable>
+              ))}
             </View>
           </View>
         </View>
       </View>
 
-      {/* Save button */}
-      <View className="px-5 py-2">
-        <View className="border rounded-xl bg-[#38bdf8]">
-          <Pressable className="items-center px-5 py-3">
-            <Text className="font-semibold">Save Dream to Journal</Text>
-          </Pressable>
-        </View>
+      {/* Save Button */}
+      <View className="px-5 py-4">
+        <Pressable className="items-center px-5 py-3.5 rounded-xl bg-[#38bdf8] active:opacity-80">
+          <Text className="font-semibold text-[#081425] text-base">Save Dream to Journal</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
 };
 
-export default createDream;
+export default CreateDream;

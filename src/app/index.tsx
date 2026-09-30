@@ -1,4 +1,5 @@
 import { Text, View, ScrollView } from "react-native";
+import { useState, useEffect } from "react"
 import List from "../components/List"
 
 export default function Index() {
