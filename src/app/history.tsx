@@ -1,13 +1,13 @@
 import { View, Text, ScrollView, Pressable, Platform } from 'react-native';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
-import localStorage from "../../modules/localstorage/src/LocalstorageModule"
+import localStorage from "../../modules/localstorage/src/LocalstorageModule";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Card from "../components/Card";
 
 const History = () => {
   const [date, setDate] = useState(new Date());
-  const [datas,setDatas] = useState()
+  const [datas, setDatas] = useState();
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
@@ -18,15 +18,16 @@ const History = () => {
   const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const fetchingData = () => {
-    const data = localStorage.getData()
-    setDatas(data == "No Data" ? [] : JSON.parse(data))
-  }
+    const data = localStorage.getData();
+    setDatas(data == "No Data" ? [] : JSON.parse(data));
+  };
 
   useFocusEffect(
     useCallback(() => {
       fetchingData();
     }, [datas])
   );
+
   return (
     <ScrollView className="bg-[#081425]">
       {/* Title */}
@@ -55,9 +56,7 @@ const History = () => {
           <Text className="text-xl font-semibold text-white">Today</Text>
         </View>
         <View className="gap-2 mt-2">
-          <Card />
-          <Card />
-          <Card />
+          {datas.map((d:any,i:number) => formattedDate === d.date ? <Card title={d.title} context={d.context} lucidity={d.lucidity}/> : null)}
         </View>
       </View>
 
@@ -67,9 +66,30 @@ const History = () => {
           <Text className="text-xl font-semibold text-white">Earlier This Week</Text>
         </View>
         <View className="gap-2 mt-2">
-          <Card />
-          <Card />
-          <Card />
+          {datas.map((d: any, i: number) => {
+            if (!d.date) return null;
+
+            const months: Record<string, number> = {
+              januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5,
+              juli: 6, agustus: 7, september: 8, oktober: 9, november: 10, desember: 11
+            };
+
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            sevenDaysAgo.setHours(0, 0, 0, 0);
+
+            const [day, monthName, year] = d.date.toLowerCase().split(' ');
+            const itemDate = new Date(Number(year), months[monthName], Number(day));
+
+            const isWithinLast7Days = itemDate >= sevenDaysAgo && itemDate <= today;
+
+            return isWithinLast7Days ? (
+              <Card key={i} title={d.title} context={d.context} lucidity={d.lucidity} />
+            ) : null;
+          })}
         </View>
       </View>
     </ScrollView>
