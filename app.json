@@ -12,7 +12,8 @@
         "backgroundColor": "#E6F4FE",
         "backgroundImage": "./src/assets/screen.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ishida24.dreamlearning"
     },
     "web": {
       "output": "static",

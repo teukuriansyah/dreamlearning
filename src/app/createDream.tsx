@@ -1,9 +1,11 @@
 import { View, Text, TextInput, ScrollView, Pressable, Platform } from 'react-native';
 import { useState, useEffect } from "react";
-import localStorage from "../../modules/localStorage/src/LocalstorageModule"
+import { useRouter } from 'expo-router';
+import localStorage from "../../modules/localstorage/src/LocalstorageModule"
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CreateDream = () => {
+  const route = useRouter()
   const emotions = ["Happy", "Excited", "Calm", "Confused", "Curious", "Scared"];
   const [title, onChangeTitle] = useState<string>("")
   const [context, onChangeContext] = useState<string>("")
@@ -28,6 +30,7 @@ const CreateDream = () => {
     onChangeContext("")
     setSelectedEmotions([])
     setSelectedLucidity("partially")
+    route.back()
   }
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
@@ -60,7 +63,7 @@ const CreateDream = () => {
             <Pressable onPress={() => setShowDatePicker(true)} className="mt-1 py-2 rounded-xl flex-row justify-between items-center active:opacity-80">
               <Text className="text-white font-medium text-lg">{formattedDate}</Text>
             </Pressable>
-            {showDatePicker && <DateTimePicker value={date} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={onChangeDate} maximumDate={new Date()} />}
+            {showDatePicker && <DateTimePicker value={date} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onValueChange={onChangeDate} maximumDate={new Date()} />}
           </View>
         </View>
       </View>

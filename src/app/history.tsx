@@ -1,5 +1,7 @@
 import { View, Text, ScrollView, Pressable, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
+import localStorage from "../../modules/localstorage/src/LocalstorageModule"
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Card from "../components/Card";
 
@@ -20,9 +22,11 @@ const History = () => {
     setDatas(data == "No Data" ? [] : JSON.parse(data))
   }
 
-  useEffect(() => {
-    fetchingData()
-  },[])
+  useFocusEffect(
+    useCallback(() => {
+      fetchingData();
+    }, [datas])
+  );
   return (
     <ScrollView className="bg-[#081425]">
       {/* Title */}

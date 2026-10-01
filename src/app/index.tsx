@@ -1,19 +1,22 @@
 import { Text, View, ScrollView } from "react-native";
-import { useState, useEffect } from "react"
-import localStorage from "../../modules/localStorage/src/LocalstorageModule"
+import { useFocusEffect } from "expo-router";
+import { useState, useCallback } from "react"
+import localStorage from "../../modules/localstorage/src/LocalstorageModule"
 import List from "../components/List"
 
 export default function Index() {
-  const [datas, setDatas] = useState()
+  const [datas, setDatas] = useState<any>([])
 
   const fetchingData = () => {
     const data = localStorage.getData()
-    setDatas(data == "No Data" ? [] : JSON.parse(data))
+    setDatas(data == "No Data" ? [] : JSON.parse(data).reverse())
   }
 
-  useEffect(() => {
-    fetchingData()
-  },[])
+  useFocusEffect(
+      useCallback(() => {
+        fetchingData();
+      }, [datas])
+    );
   return (
     <ScrollView className="bg-[#081425]">
       <View className="px-5 py-2">
@@ -27,14 +30,14 @@ export default function Index() {
         </View>
         <View className="bg-[#111C2D] rounded-xl px-6 py-4 mt-2 ">
           <View>
-            <Text className="text-3xl font-semibold text-white">Title</Text>
-            <Text className="text-gray-600">Tanggal</Text>
+            <Text className="text-3xl font-semibold text-white">{datas[0]?.title}</Text>
+            <Text className="text-gray-600">{datas[0]?.date}</Text>
           </View>
           <View className="mt-1">
-            <Text className="text-sm">Lucid</Text>
+            <View className={`${datas[0]?.lucidity == "partially" ? "bg-yellow-600" : datas[0]?.lucidity == "yes" ? "bg-green-600" : null} w-16 items-center rounded-xl justify-between`}><Text className={`text-sm ${datas[0]?.lucidity === "partially" ? "text-yellow-400" : datas[0]?.lucidity === "yes" ? "text-green-400" : null}`}>{datas[0]?.lucidity === "yes" ? "Lucid" : datas[0]?.lucidity === "no" ? "No Lucid" : datas[0]?.lucidity === "partially" ? "Partially" : ""}</Text></View>
           </View>
           <View className="mt-4">
-            <Text className="text-gray-600">Context</Text>
+            <Text className="text-gray-600">{datas[0]?.context}</Text>
           </View>
         </View>
       </View>
@@ -45,9 +48,7 @@ export default function Index() {
           <Text className="text-gray-600 font-medium">RECENT DREAMS</Text>
         </View>
         <View className="mt-2 gap-3">
-          <List />
-          <List />
-          <List />
+          {datas?.length > 1 ? datas.map((d:any,i:number) => (i > 0 && i < 5) ? <List title={d.title} date={d.date} lucidity={d.lucidity} key={i} /> : null) : null}
         </View>
       </View>
     </ScrollView>
