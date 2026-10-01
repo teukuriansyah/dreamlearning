@@ -1,6 +1,7 @@
 import { View, Text, TextInput, ScrollView, Pressable, Platform } from 'react-native';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from "expo-router";
 import localStorage from "../../modules/localstorage/src/LocalstorageModule"
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -45,9 +46,11 @@ const CreateDream = () => {
 
   const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  useEffect(() => {
-    fetchingData()
-  },[])
+  useFocusEffect(
+    useCallback(() => {
+      fetchingData();
+    }, [])
+  );
   return (
     <ScrollView className="bg-[#081425]">
       {/* Basic Details */}
